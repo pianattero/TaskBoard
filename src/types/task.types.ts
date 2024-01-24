@@ -1,4 +1,10 @@
 export interface taskDescription {
-    img: string;
+    icon?: string;
+    iconBgColor?: string;
     title: string;
+    fontSize?: string;
+    bgColor: string;
+    hasButton: boolean;
+    btnIcon?: string;
+    btnBgColor?: string;
   }
