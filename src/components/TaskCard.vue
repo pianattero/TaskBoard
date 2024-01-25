@@ -1,91 +1,91 @@
 <template>
-    <div class="card-container">
+    <div
+    class="card-container">
         <div
         class="card-info"
-        v-for="title in titles"
-        :key="title.title"
-        :style="{backgroundColor: title.bgColor}"
+        v-for="task in tasks"
+        :key="task.name"
+        :style="{backgroundColor: task.bgColor}"
+        @click="emits('editTask', task)"
         >
-            <div>
-                <IconBtn
-                v-if="title.icon"
-                :bg-color="title.iconBgColor"
-                :icon-text="title.icon"
-                />
-                <IconBtn
-                v-else
-                :icon-img="title.btnIcon"
-                :bg-color="title.btnBgColor"
-                />
-                <h3 :style="{fontSize: title.fontSize}">{{ title.title }}</h3>
+            <div class="task-description">
+                <div>
+                    <IconBtn
+                    :icon-text="task.icon"
+                    :bg-color="'#F8FAFC'"
+                    />
+                    <div class="task-info">
+                        <h3>{{ task.name }}</h3>
+                        <p v-if="task.description">{{ task.description }}</p>
+                    </div>
+                </div>
+                <div>
+                    <IconBtn
+                    v-if="task.status === 'In Progress'"
+                    :icon-img="'src/assets/icons/Time_atack_duotone.svg'"
+                    :bg-color="'#E9A23B'"
+                    />
+                    <IconBtn
+                    v-else-if="task.status === 'Completed'"
+                    :icon-img="'src/assets/icons/Done_round_duotone.svg'"
+                    :bg-color="'#32D657'"
+                    />
+                    <IconBtn
+                    v-else-if="task.status === 'Won`t do'"
+                    :icon-img="'src/assets/icons/close_ring_duotone.svg'"
+                    :bg-color="'#DD524C'"
+                    />
+                    <IconBtn
+                    v-else
+                    :icon-img="'src/assets/icons/circle.svg'"
+                    :bg-color="'#97A3B6'"
+                    />
+                </div>
             </div>
-
+        </div>
+        <div
+        class="card-info task-add"
+        :style="{backgroundColor: '#F5E8D5'}"
+        @click="emits('createTask')">
             <IconBtn
-            v-show="title.hasButton"
-            :icon-img="title.btnIcon"
-            :bg-color="title.btnBgColor"
+            :icon-img="'src/assets/icons/Add_round_duotone.svg'"
+            :bg-color="'#E9A23B'"
             />
-            
+            <h3>Add new task</h3>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
 // IMPORTS
-import { type taskDescription } from '@/types/task.types';
 import IconBtn from '@/components/IconBtn.vue'
+import { useFormDataStore } from '@/stores/formDataStore';
+import { storeToRefs } from 'pinia';
 
-// DATA
-const titles: taskDescription[] = [
-    {
-        icon: '⏰',
-        title: 'Task in Progress',
-        iconBgColor: '#F8FAFC',
-        bgColor: '#F5D565',
-        hasButton: true,
-        btnIcon: 'src/assets/icons/Time_atack_duotone.svg',
-        btnBgColor: '#E9A23B',
+// EMITS
+// const emit = defineEmits(['emit-open', 'emit-edit'])
+const emits = defineEmits({
+    createTask() {
+        return true
     },
-    {
-        icon: '🏋️‍♂️',
-        title: 'Task Completed',
-        iconBgColor: '#F8FAFC',
-        bgColor: '#A0ECB1',
-        hasButton: true,
-        btnIcon: 'src/assets/icons/Done_round_duotone.svg',
-        btnBgColor: '#32D657',
+    editTask(task) {
+        return task
     },
-    {
-        icon: '☕',
-        title: "Task Won't Do",
-        iconBgColor: '#F8FAFC',
-        bgColor: '#F7D4D3',
-        hasButton: true,
-        btnIcon: 'src/assets/icons/close_ring_duotone.svg',
-        btnBgColor: '#DD524C'
-    },
-    {
-        icon: '📚',
-        title: 'Task To Do',
-        iconBgColor: '#F8FAFC',
-        bgColor: '#E3E8EF',
-        hasButton: false,
-    },
-    {
-        btnIcon: 'src/assets/icons/Add_round_duotone.svg',
-        btnBgColor: '#E9A23B',
-        title: 'Add new task',
-        fontSize: '1rem',
-        bgColor: '#F5E8D5',
-        hasButton: false,
-    },
-];
+})
+
+// STORES
+const formDataStore = useFormDataStore();
+// - Form data
+const { tasks } = storeToRefs(formDataStore);
 </script>
 
 <style scoped lang="scss">
-
 .card-container{
     width: 40rem;
+
+    @include media(){
+        width: 80vw;
+    }
     .card-info {
         @include flex(row, nowrap, space-between, center);
         margin-bottom: 1rem;
@@ -95,9 +95,24 @@ const titles: taskDescription[] = [
     
         div {
             @include flex(row, nowrap, center, center);
+        }
+
+        .task-description {
+            @include flex(row, nowrap, space-between, center);
+            width: 100%;
+
+            .task-info {
+                display: block;
+                margin: 0 1rem;
+            }
+        }
+
+        &.task-add {
+            @include flex(row, nowrap, flex-start, center);
+            font-size: 0.75rem;
 
             h3 {
-                margin-left: 1rem
+                margin-left: 1rem;
             }
         }
     }
