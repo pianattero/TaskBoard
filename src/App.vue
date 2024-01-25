@@ -11,7 +11,6 @@
 
 #app {
   font-family: "Outfit", sans-serif;
-  background-color: $c-bg-default;
   color: $c-title-description;
   min-height: 100vh;
 
