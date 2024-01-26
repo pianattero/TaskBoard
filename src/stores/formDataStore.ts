@@ -8,7 +8,7 @@ export type RootState = {
   taskSelectedId: number | null;
   editMode: boolean;
   showModal: boolean;
-  iconsList: Icon[];
+  iconsList: string[];
   statusList: Status[];
 };
 
