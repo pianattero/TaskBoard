@@ -37,5 +37,6 @@ const emit = defineEmits(['emit-action'])
     color: $c-white;
     font-weight: 300;
     margin: 0 0.5rem;
+    cursor: pointer;
 }
 </style>
