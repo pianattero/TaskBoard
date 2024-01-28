@@ -1,8 +1,8 @@
 <template>
-	<Modal :modal-active="modalActive" @emit-close="toggleModal">
-		<Form @emit-reset="resetForm" />
+	<Modal v-if="showModal" @emit-close="showModal = false">
+		<Form />
 	</Modal>
-	<div :style="{ filter: modalActive ? 'brightness(70%)' : 'brightness(1)' }">
+	<div :style="{ filter: showModal ? 'brightness(70%)' : 'brightness(1)' }">
 		<div class="home-title">
 			<h1>
 				<img src="@/assets/icons/Logo.svg" /> My Task Board
@@ -10,41 +10,37 @@
 			</h1>
 			<p>Tasks to keep organised</p>
 		</div>
+		<div
+			class="add-new" @click="addCard" :style="{backgroundColor: '#F5E8D5'}">
+			<IconBtn
+			:icon-img="'src/assets/icons/Add_round_duotone.svg'"
+			:bg-color="'#E9A23B'"
+			/>
+			<h3>Add new task</h3>
+		</div>
 		<div>
-			<TaskCard @create-task="toggleModal" @edit-task="editForm" />
+			<TaskCard v-for="task in tasks" :key="task.id" :task="task"
+			/>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
 	// IMPORTS
-	import { ref, toRaw } from "vue";
-	import TaskCard from "@/components/TaskCard.vue";
-	import Form from "@/components/Form.vue";
-	import Modal from "@/components/Modal.vue";
 	import { useFormDataStore } from "@/stores/formDataStore";
 	import { storeToRefs } from "pinia";
 
 	// STORES
 	const formDataStore = useFormDataStore();
-	// - Form data
-	const { data } = storeToRefs(formDataStore);
-
-	// DATA
-	const modalActive = ref(false);
+	// - Form Data
+	const { tasks, showModal, editMode } = storeToRefs(formDataStore);
 
 	// METHODS
-	const toggleModal = () => (modalActive.value = !modalActive.value);
-	const resetForm = () => {
-		modalActive.value = false;
+	const addCard = () => {
+		showModal.value = true;
+		editMode.value = false;
 	};
-	const editForm = (task: any) => {
-		modalActive.value = true;
-		// const dataToEdit = structuredClone(toRaw(task));
-    const dataToEdit = task;
-		data.value = dataToEdit;
-		console.log(data.value);
-	};
+
 </script>
 
 <style scoped lang="scss">
@@ -56,4 +52,22 @@
 			font-size: 2.5rem;
 		}
 	}
+
+  .add-new {
+    @include flex(row, nowrap, flex-start, center);
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border-radius: $border-radius;
+        font-size: 0.75rem;
+		width: 40rem;
+
+	@include media(){
+		width: 80vw;
+	}
+    
+        h3 {
+            margin-left: 1rem;
+        }
+    }
+
 </style>

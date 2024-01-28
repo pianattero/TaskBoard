@@ -1,7 +1,6 @@
 <template>
     <button
     type="button"
-    @click="emit('emit-status')"
     >
         <div
         class="status-container"
@@ -17,9 +16,6 @@
 </template>
 
 <script setup lang="ts">
-// IMPORTS
-import IconBtn from './IconBtn.vue';
-
 // PROPS
 const props = defineProps({
     name: String,
@@ -27,11 +23,6 @@ const props = defineProps({
     bgColor: String,
     borderColor: String,
 });
-
-// EMITS
-
- //EMITS
- const emit = defineEmits(['emit-status']);
 </script>
 
 <style scoped lang="scss">

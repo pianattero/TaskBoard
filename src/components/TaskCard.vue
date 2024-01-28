@@ -3,80 +3,83 @@
     class="card-container">
         <div
         class="card-info"
-        v-for="task in tasks"
-        :key="task.name"
-        :style="{backgroundColor: task.bgColor}"
-        @click="emits('editTask', task)"
+        :style="{backgroundColor: icon?.bgColor}"
+        @click="openTask"
         >
             <div class="task-description">
                 <div>
                     <IconBtn
-                    :icon-text="task.icon"
+                    :icon-text="task?.icon"
                     :bg-color="'#F8FAFC'"
                     />
                     <div class="task-info">
-                        <h3>{{ task.name }}</h3>
-                        <p v-if="task.description">{{ task.description }}</p>
+                        <h3>{{ task?.name }}</h3>
+                        <p v-if="task?.description">{{ task?.description }}</p>
                     </div>
                 </div>
                 <div>
                     <IconBtn
-                    v-if="task.status === 'In Progress'"
-                    :icon-img="'src/assets/icons/Time_atack_duotone.svg'"
-                    :bg-color="'#E9A23B'"
-                    />
-                    <IconBtn
-                    v-else-if="task.status === 'Completed'"
-                    :icon-img="'src/assets/icons/Done_round_duotone.svg'"
-                    :bg-color="'#32D657'"
-                    />
-                    <IconBtn
-                    v-else-if="task.status === 'Won`t do'"
-                    :icon-img="'src/assets/icons/close_ring_duotone.svg'"
-                    :bg-color="'#DD524C'"
-                    />
-                    <IconBtn
-                    v-else
-                    :icon-img="'src/assets/icons/circle.svg'"
-                    :bg-color="'#97A3B6'"
+                    :icon-img="icon?.icon"
+                    :bg-color="icon?.iconBgColor"
                     />
                 </div>
             </div>
-        </div>
-        <div
-        class="card-info task-add"
-        :style="{backgroundColor: '#F5E8D5'}"
-        @click="emits('createTask')">
-            <IconBtn
-            :icon-img="'src/assets/icons/Add_round_duotone.svg'"
-            :bg-color="'#E9A23B'"
-            />
-            <h3>Add new task</h3>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
 // IMPORTS
-import IconBtn from '@/components/IconBtn.vue'
-import { useFormDataStore } from '@/stores/formDataStore';
-import { storeToRefs } from 'pinia';
-
-// EMITS
-// const emit = defineEmits(['emit-open', 'emit-edit'])
-const emits = defineEmits({
-    createTask() {
-        return true
-    },
-    editTask(task) {
-        return task
-    },
-})
+import { computed, type PropType } from 'vue';
+import type { Task } from '@/types/form-data.types'
+import { useFormDataStore } from "@/stores/formDataStore";
 
 // STORES
 const formDataStore = useFormDataStore();
-// - Form data
-const { tasks } = storeToRefs(formDataStore);
+
+// PROPS
+const props = defineProps({
+    task: {
+        type: Object as PropType<Task>
+    },
+});
+
+// COMPUTED
+const icon = computed(() => {
+    switch (props.task?.status) {
+        case 'In Progress':
+            return {
+                icon: 'src/assets/icons/Done_round_duotone.svg',
+                iconBgColor: '#E9A23B',
+                bgColor: "#F5D565",
+            };
+        case 'Completed':
+            return {
+                icon: 'src/assets/icons/Time_atack_duotone.svg',
+                iconBgColor: '#32D657',
+                bgColor: '#A0ECB1',
+            };
+        case 'Do Later':
+            return {
+                icon: 'src/assets/icons/close_ring_duotone.svg',
+                iconBgColor: '#DD524C',
+                bgColor: '#F7D4D3',
+            };
+        case 'To do':
+            return {
+                icon: 'src/assets/icons/to_do.svg',
+                iconBgColor: '#97A3B6',
+                bgColor: '#E3E8EF',
+            };
+    }
+});
+
+// METHODS
+const openTask = () => {
+    formDataStore.taskSelectedId = props.task!.id;
+    formDataStore.editMode = true;
+    formDataStore.showModal = true;
+}
 </script>
 
 <style scoped lang="scss">
@@ -104,15 +107,6 @@ const { tasks } = storeToRefs(formDataStore);
             .task-info {
                 display: block;
                 margin: 0 1rem;
-            }
-        }
-
-        &.task-add {
-            @include flex(row, nowrap, flex-start, center);
-            font-size: 0.75rem;
-
-            h3 {
-                margin-left: 1rem;
             }
         }
     }
