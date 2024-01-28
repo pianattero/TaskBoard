@@ -1,7 +1,7 @@
 <template>
     <button
     type="button"
-    @click="emit('emit-action')"
+    @click="emit('btnAction')"
     class="form-btn"
     :style="{backgroundColor: props.bgColor}"
     >
@@ -25,7 +25,7 @@ const props = defineProps({
 });
 
 // EMITS
-const emit = defineEmits(['emit-action'])
+const emit = defineEmits(['btnAction'])
 </script>
 
 <style scoped lang="scss">

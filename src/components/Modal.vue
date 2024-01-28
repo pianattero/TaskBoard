@@ -1,8 +1,8 @@
 <template>
     <Transition name="modal-animation">
-        <div  v-show="props.modalActive" class="modal">
+        <div class="modal">
             <Transition name="modal-animation-inner">
-                <div  v-show="props.modalActive" class="modal-inner">
+                <div class="modal-inner">
                     <div class="modal-header">
                         <h4>Task details</h4>
                         <IconBtn
@@ -12,8 +12,8 @@
                         @click="emit('emit-close')"
                         />
                     </div>
-                    <!-- Modal Content -->
                     <slot/>
+                    <!-- Modal Content -->
                 </div>
             </Transition>
         </div>
@@ -21,17 +21,6 @@
 </template>
 
 <script setup lang="ts">
-// IMPORTS
-import IconBtn from './IconBtn.vue';
-
-//PROPS 
-const props = defineProps({
-    modalActive: {
-    type: Boolean,
-    default: false,
-    },
- });
-
 // EMITS
 const emit = defineEmits(['emit-close'])
 </script>

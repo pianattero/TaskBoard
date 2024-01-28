@@ -18,18 +18,18 @@
                 maxlength="100"
                 placeholder="Enter a short description"
                 v-model="description"
-                @change="setDescription(description)"/>
+                />
 
             </div>
             <div>
                 <label>Icon</label>
                 <div class="select">
                     <IconBtn
-                    v-for="icon in icons"
-                    :key="icon.icon"
-                    :icon-text="icon.icon"
-                    :bg-color="activeIcon === icon.icon ? '#F5D565' : '#E3E8EF'"
-                    @click="setIcon(icon.icon)"
+                    v-for="(icon, index) in iconsList"
+                    :key="index"
+                    :icon-text="icon"
+                    :style="{ backgroundColor: iconColor(icon), borderRadius: '0.7rem'}"
+                    @click="iconSelected = icon"
                     />
                 </div>
             </div>
@@ -42,28 +42,26 @@
                     :name="status.name"
                     :icon="status.icon"
                     :bg-color="status.iconBgColor"
-                    :border-color="activeStatus === status.name ? '0.15rem solid #3662E3' : '0.15rem solid #E3E8EF'"
-                    @emit-status="setStatus(status.name), setBgColor(status.bgColor)"
+                    :border-color="statusBorderColor(status.name)"
+                    @click="statusSelected = status.name"
                     />
                 </div>
             </div>
         </div>
         <div class="form-btns">
             <FormBtn
-            v-for="button in buttons"
-            :key="button.text"
-            :text="button.text"
-            :icon="button.icon"
-            :bg-color="button.bgColor"
-            @emit-action="addTask({
-                id: formDataStore.tasks.length++,
-                name,
-                description,
-                icon: formDataStore.data.icon,
-                status: formDataStore.data.status,
-                bgColor: formDataStore.data.bgColor,
-                })"
-            @click="emit('emit-reset'), resetForm()"
+            v-if="formDataStore.editMode"
+            :text="'Delete'"
+            :icon="'src/assets/icons/Trash.svg'"
+            :bg-color="'#97A3B6'"
+            @btn-action="formDataStore.deleteTask(formDataStore.taskSelectedId!)"
+
+            />
+            <FormBtn
+            :text="'Save'"
+            :icon="'src/assets/icons/Done_round.svg'"
+            :bg-color="'#3662E3'"
+            @btn-action="createTask"
             />
         </div>
     </form>
@@ -71,89 +69,66 @@
 
 <script setup lang="ts">
 // IMPORTS
-import { computed, ref } from 'vue';;
+import { computed, onMounted, ref, type Ref } from 'vue';
+import uniqid from 'uniqid';
 import { useFormDataStore } from '@/stores/formDataStore';
-import IconBtn from './IconBtn.vue';
-import StatusCard from './StatusCard.vue';
-import FormBtn from './FormBtn.vue';
+import { statusList } from '@/model/statusList';
+import { iconsList } from '@/model/iconsList';
 
 // STORES
 const formDataStore = useFormDataStore();
+// - Form Data
+const { editTask, addTask } = formDataStore
+
+//HOOKS 
+onMounted(() => {
+    iconSelected.value = iconsList[0];
+    statusSelected.value = statusList[3].name;
+    if (formDataStore.editMode) {
+        name.value = formDataStore.taskSelected!.name;
+        description.value = formDataStore.taskSelected!.description;
+        iconSelected.value = formDataStore.taskSelected!.icon;
+        statusSelected.value = formDataStore.taskSelected!.status;
+    }
+})
 
 // COMPUTED
-const activeIcon = computed(() => formDataStore.data.icon || '⏰');
-const activeStatus = computed(() => formDataStore.data.status || 'To do');
+const statusBorderColor = computed(() => {
+    return (name: string) => {
+    return statusSelected.value && statusSelected.value === name
+      ? "0.15rem solid #3662E3"
+      : "0.15rem solid #E3E8EF";
+  };
+});
 
-// EMITS
-const emit = defineEmits(['emit-reset'])
+const iconColor = computed(() => {
+    return (icon: string) => {
+    return iconSelected.value && iconSelected.value === icon
+      ? "#F5D565"
+      : "#E3E8EF";
+  };
+});
 
 // DATA
-const { setName, setDescription, setIcon, setStatus, setBgColor, addTask, deleteTask,data } = formDataStore
-const name = ref('');
-const description = ref('');
-const icons = [
-    {
-        icon: '⏰'
-    },
-    {
-        icon: '🏋️‍♂️'
-    },
-    {
-        icon: '☕'
-    },
-    {
-        icon: '👨‍💻'
-    },
-    {
-        icon: '💬'
-    }
-];
-
-const statusList = [
-    {
-        name: 'In Progress',
-        icon: 'src/assets/icons/Time_atack_duotone.svg',
-        iconBgColor: '#E9A23B',
-        bgColor: '#F5D565'
-    },
-    {
-        name: 'Completed',
-        icon: 'src/assets/icons/Done_round_duotone.svg',
-        iconBgColor: '#32D657',
-        bgColor: '#A0ECB1'
-    },
-    {
-        name: "Won`t do",
-        icon: 'src/assets/icons/close_ring_duotone.svg',
-        iconBgColor: '#DD524C',
-        bgColor: '#F7D4D3'
-    },
-    {
-        name: "To do",
-        icon: 'src/assets/icons/circle.svg',
-        iconBgColor: '#97A3B6',
-        bgColor: '#E3E8EF'
-    },
-];
-
-const buttons = [
-    {
-        text: 'Delete',
-        icon: 'src/assets/icons/Trash.svg',
-        bgColor: '#97A3B6',
-    },
-    {
-        text: 'Save',
-        icon: 'src/assets/icons/Done_round.svg',
-        bgColor: '#3662E3'
-    },
-];
+const name: Ref<String> = ref('');
+const description: Ref<String> = ref('');
+const iconSelected: Ref<String> = ref('');
+const statusSelected: Ref<String> = ref('');
 
 // METHODS
-const resetForm = () => {
-    name.value = ''
-    description.value = ''
-};
+const createTask = () => {
+    const task: any = {
+        id: uniqid(),
+        name: name.value,
+        description: description.value,
+        icon: iconSelected.value,
+        status: statusSelected.value,
+    };
+    if (formDataStore.editMode && formDataStore.taskSelectedId) {
+        task.id = formDataStore.taskSelectedId
+    };
+    formDataStore.editMode ? editTask(task) : addTask(task);
+}
 
 </script>
 
