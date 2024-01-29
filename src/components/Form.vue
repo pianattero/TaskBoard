@@ -7,9 +7,12 @@
                 type="text"
                 maxlength="50"
                 placeholder="Task name"
-                required
                 v-model="name"
+                :class="!name && showValidationErrors && 'validation-border'"
                 >
+                <div v-if="!name && showValidationErrors" class="validation-text">
+                    <p>The name field is required</p>
+                </div>
             </div>
             <div>
                 <label>Description</label>
@@ -61,7 +64,7 @@
             :text="'Save'"
             :icon="'src/assets/icons/Done_round.svg'"
             :bg-color="'#3662E3'"
-            @btn-action="createTask"
+            @btn-action="validateForm"
             />
         </div>
     </form>
@@ -114,6 +117,7 @@ const name: Ref<String> = ref('');
 const description: Ref<String> = ref('');
 const iconSelected: Ref<String> = ref('');
 const statusSelected: Ref<String> = ref('');
+const showValidationErrors: Ref<Boolean> = ref(false);
 
 // METHODS
 const createTask = () => {
@@ -128,6 +132,18 @@ const createTask = () => {
         task.id = formDataStore.taskSelectedId
     };
     formDataStore.editMode ? editTask(task) : addTask(task);
+};
+
+const validateForm = () => {
+    name.value = typeof name.value === 'string' && name.value.trim().length > 0 ? name.value : '';
+
+    if (name.value) {
+        createTask()
+        console.log('sin errores')
+      } else {
+        console.log('con errores')
+        showValidationErrors.value = true
+      }
 }
 
 </script>
@@ -154,6 +170,16 @@ form {
         padding: 0.6rem;
         width: 100%;
         font-family: "Outfit", sans-serif;
+    }
+
+    .validation-text {
+        color: $c-btn-wont;
+        font-size: small;
+        margin-left: 0.2rem;
+    }
+
+    .validation-border {
+        border: 0.1rem solid $c-btn-wont;
     }
     
     .select {
